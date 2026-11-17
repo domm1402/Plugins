@@ -910,7 +910,6 @@ const OFFICIAL_BADGE_ASSETS: Record<string, string> = {
   'verified-developer': '6df5892e0f35b051f8b61eace34f4967',
   'certified-moderator': 'fee1624003e2fee35cb398e125dc479b',
   premium: '2ba85e8026a8614b640c2837bcdfe21b',
-  'booster-1': 'ec8c7e1b1ecb2c6a9a7b3b4a7f5f6f4d',
 }
 
 export const DEFAULT_BADGES: BadgeItem[] = [...PRESET_BADGES, ...EXTRA_BADGES].map(badge => ({
