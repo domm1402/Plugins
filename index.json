@@ -5,10 +5,10 @@
   "plugins": {
     "domms.custom-badges": {
       "name": "Domms Custom Badges",
-      "description": "136 cosmetic badge designs, custom image badges, tappable profile details and compact profile badge layout.",
+      "description": "Display selected Discord badge artwork and custom image badges in Valenced profiles using the native badge pipeline. Local display only; does not grant Discord account badges.",
       "author": "Niche Games",
       "channels": {
-        "latest": "1.0.4"
+        "latest": "1.0.5"
       },
       "versions": {
         "1.0.2": {
@@ -41,6 +41,19 @@
           "url": "https://domm1402.github.io/Plugins/pool/domms.custom-badges@1.0.4.zip",
           "sha256": "51c0f8d075970deda043cd80ab54fff1600c98050376a46d8d9c8f76b3505a50",
           "size": 5810,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": ">=351.1"
+            }
+          }
+        },
+        "1.0.5": {
+          "url": "https://domm1402.github.io/Plugins/pool/domms.custom-badges@1.0.5.zip",
+          "sha256": "7faef8c95006c4eee2d6f66665380a5640454c582bc4768d855deffef1443924",
+          "size": 6167,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
