@@ -52,16 +52,12 @@ function mapElementTree(node: ReactNode, visit: (element: ReactElement<any>) => 
   return createElement(element.type, { ...element.props, ...patch, ...(nextChildren === children ? {} : { children: nextChildren }) })
 }
 
-const patched = new WeakMap<FC<any>, FC<any>>()
 function patchRender<P extends object, C = void>(Component: FC<P>, patch: RenderPatch<P, C>, useContext?: () => C): FC<P> {
-  const cached = patched.get(Component)
-  if (cached) return cached
   const Wrapped: FC<P> = props => {
     const context = useContext?.() as C
     const rendered = Component(props)
     return rendered instanceof Promise ? rendered.then(node => patch(node, props, context)) as any : patch(rendered, props, context) as any
   }
-  patched.set(Component, Wrapped)
   return Wrapped
 }
 
