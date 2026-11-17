@@ -124,7 +124,7 @@ function injectCustomBadges(rendered: ReactNode, props: ProfileBadgeRowsProps, s
         ...children.filter(child => !isProfileBadgeElement(child) || child.props.id !== DummyBadgeId),
         ...additions,
       ],
-      style: [element.props.style, { flexWrap: 'wrap', gap: 0, rowGap: 0, columnGap: 0 }],
+      style: [element.props.style, { flexWrap: 'wrap', gap: 0, rowGap: 0, columnGap: 0, justifyContent: 'flex-start' }],
     }
   })
 }
