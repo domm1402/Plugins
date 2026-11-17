@@ -42,8 +42,14 @@ export default plugin<{ jsonStorage: Settings }>({
       const component = args[0]
       const type = isRecord(component) ? component.type : component
       const name = typeof type === 'function' ? type.name : ''
-      if (name === 'ProfileBadgeRows' && isRecord(args[1])) {
-        const props = args[1]
+      const props = args[1]
+      // Match the badge-row component by its stable prop shape as well as its
+      // development name. Production/minified builds may rename the component.
+      const isBadgeRows = isRecord(props)
+        && typeof props.userId === 'string'
+        && Array.isArray(props.badges)
+        && typeof props.themeType === 'string'
+      if ((name === 'ProfileBadgeRows' || isBadgeRows) && isRecord(props)) {
         const ownUserId = userStore?.getCurrentUser()?.id
         const isOwnProfile = typeof props.userId === 'string' && props.userId === ownUserId
         args[1] = {
@@ -53,9 +59,11 @@ export default plugin<{ jsonStorage: Settings }>({
             ? [props.style, { flexWrap: 'wrap', rowGap: 4, flexShrink: 1 }]
             : props.style,
         }
-      } else if (name === 'ProfileBadge' && isRecord(args[1]) && isCustomId(args[1].id)) {
-        const custom = store.getProps(args[1].id)
-        if (custom) args[1] = { ...args[1], source: custom.source, label: custom.label }
+      } else if (isRecord(props) && isCustomId(props.id)) {
+        // ProfileBadge is also matched by its custom ID, so this keeps working
+        // when production builds minify component names.
+        const custom = store.getProps(props.id)
+        if (custom) args[1] = { ...props, source: custom.source, label: custom.label }
       }
       return args
     }
