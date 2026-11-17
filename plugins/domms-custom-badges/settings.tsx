@@ -12,8 +12,8 @@ type Props = ComponentProps<PluginSettingsComponent<{ jsonStorage: Settings }>>
 export default function SettingsComponent({ api: { jsonStorage: storage } }: Props) {
   const settings = storage.use() ?? { badges: [], showAll: true }
   const [label, setLabel] = useState('')
-  const [image, setImage] = React.useState('')
-  const [error, setError] = React.useState('')
+  const [image, setImage] = useState('')
+  const [error, setError] = useState('')
 
   const add = () => {
     const name = label.trim()
@@ -35,8 +35,8 @@ export default function SettingsComponent({ api: { jsonStorage: storage } }: Pro
       <Page>
         <Design.TableRowGroup title="Your custom badges">
           <Design.Text>Badges are saved on this device. Paste a direct image URL. The URL does not need a .png, .jpg or other file extension. The server must return an image that the phone can load.</Design.Text>
-          <Design.TextInput label="Badge name" placeholder="My custom badge" defaultValue={label} onChange={setLabel} />
-          <Design.TextInput label="Image URL" placeholder="https://example.com/image" defaultValue={image} onChange={setImage} />
+          <Design.TextInput label="Badge name" placeholder="My custom badge" value={label} onChange={setLabel} />
+          <Design.TextInput label="Image URL" placeholder="https://example.com/image" value={image} onChange={setImage} />
           {error ? <Design.Text>{error}</Design.Text> : null}
           <Design.Button text="Add image badge" onPress={add} />
           {(settings.badges ?? []).map((badge, index) => (
