@@ -2,12 +2,18 @@
   "format": 1,
   "id": "domms.custom-badges",
   "name": "Domms Custom Badges",
-  "description": "Add custom image badges and cosmetic Discord-style badges to your own profile locally. Other users do not see them.",
+  "description": "Add a large cosmetic badge library, custom image badges and tappable profile badge details, locally on your own profile.",
   "author": "Niche Games",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "dependencies": {
-    "valenced.api": { "version": ">=1 <2" },
-    "discord": { "version": ">=351.1" }
+    "valenced.api": {
+      "version": ">=1 <2"
+    },
+    "discord": {
+      "version": ">=351.1"
+    }
   },
-  "dist": { "script": "index.js" }
+  "dist": {
+    "script": "index.js"
+  }
 }
