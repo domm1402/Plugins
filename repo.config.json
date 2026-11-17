@@ -1,5 +1,5 @@
 {
-	"name": "My Plugin Repository",
-	"description": "Example plugin repository from the Valenced plugin template.",
-	"channels": {}
+  "name": "Domm's Valenced Plugins",
+  "description": "Plugins for the Valenced Android Discord client, including Domms Custom Badges for adding custom image badges and Discord-style profile badges.",
+  "channels": {}
 }
