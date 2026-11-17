@@ -2,9 +2,9 @@
   "format": 1,
   "id": "domms.custom-badges",
   "name": "Domms Custom Badges",
-  "description": "Add custom image badges and Discord-style profile badges to profiles on this device.",
+  "description": "Add custom image badges and cosmetic Discord-style badges to your own profile locally. Other users do not see them.",
   "author": "Niche Games",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "dependencies": {
     "valenced.api": { "version": ">=1 <2" },
     "discord": { "version": ">=351.1" }
