@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "name": "Domm's Valenced Plugins",
+  "description": "Valenced plugins including Domms Custom Badges, a local-only badge customizer for your own profile.",
+  "plugins": {
+    "domms.custom-badges": {
+      "name": "Domms Custom Badges",
+      "description": "Add custom image badges and cosmetic Discord-style badges to your own profile locally. Other users do not see them.",
+      "author": "Niche Games",
+      "channels": {
+        "latest": "1.0.2"
+      },
+      "versions": {
+        "1.0.2": {
+          "url": "https://domm1402.github.io/Plugins/pool/domms.custom-badges@1.0.2.zip",
+          "sha256": "830476b5de1b6c1bc44277e528737a9b934e433fb97700c4ff053376b8636ab8",
+          "size": 2660,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": ">=351.1"
+            }
+          }
+        }
+      }
+    }
+  }
+}
