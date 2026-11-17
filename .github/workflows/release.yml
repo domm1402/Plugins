@@ -22,7 +22,7 @@ permissions:
 
 env:
   POOL_BRANCH: gh-pages
-  POOL_CHECKOUT: ${{ runner.temp }}/published
+  POOL_CHECKOUT: published
   PAGES_BASE_URL: https://domm1402.github.io/Plugins
   POOL_REMOTE: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
 
