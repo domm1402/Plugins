@@ -1,3 +1,4 @@
+import { getStore } from '@valenced/discord/flux'
 import { AlertActionCreators } from '@valenced/discord/actions'
 import { Design } from '@valenced/discord/design'
 import { getModules } from '@valenced/modules/finders'
@@ -13,6 +14,7 @@ import type { FC, ReactElement, ReactNode } from 'react'
 import type { BadgeItem } from './badges'
 
 type Settings = { badges: BadgeItem[]; showAll: boolean }
+type UserStore = { getCurrentUser(): { id: string } | undefined }
 type ProfileBadgeProps = {
   id: string
   userId: string
@@ -70,6 +72,8 @@ export default plugin<{ jsonStorage: Settings }>({
   start({ cleanup, jsonStorage, plugin }) {
     if (plugin.startedLate) { plugin.requireReload(); return }
     const store = createStore()
+    let userStore: UserStore | undefined
+    cleanup(getStore<UserStore>('UserStore', value => { userStore = value }))
     const sync = () => store.setItems([...(jsonStorage.cache?.badges ?? [])])
     sync()
     cleanup(jsonStorage.subscribe(sync))
@@ -81,7 +85,8 @@ export default plugin<{ jsonStorage: Settings }>({
         useSyncExternalStore(store.subscribe, store.snapshot)
         const result = Reflect.apply(original, this, args)
         const viewedUserId = args[0]?.userId
-        return viewedUserId && Array.isArray(result) ? store.add(result) : result
+        const ownUserId = userStore?.getCurrentUser()?.id
+        return viewedUserId && viewedUserId === ownUserId && Array.isArray(result) ? store.add(result) : result
       }))
     }, { returnNamespace: true, max: Infinity })
     cleanup(listUnsub)
@@ -90,9 +95,9 @@ export default plugin<{ jsonStorage: Settings }>({
       withProps<{ ProfileBadgeRows: FC<ProfileBadgeRowsProps> }>('ProfileBadgeRows'),
       ({ ProfileBadgeRows }) => {
         cleanup(insteadJSX(ProfileBadgeRows, ([type, props, key], jsx) => {
-          const ownId = props.userId
+          const ownId = userStore?.getCurrentUser()?.id
           const currentBadges = store.getItems()
-          if (!currentBadges.length || typeof type !== 'function' || !ownId) return jsx(type, props, key)
+          if (!currentBadges.length || typeof type !== 'function' || !ownId || props.userId !== ownId) return jsx(type, props, key)
           return jsx(
             patchRender(type, (rendered, rowProps) => injectCustomBadges(rendered, rowProps, store)),
             props.badges?.length ? props : { ...props, badges: DummyBadges },
