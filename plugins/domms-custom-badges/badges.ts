@@ -924,15 +924,24 @@ export function createStore() {
     snapshot: () => version,
     setItems(next: BadgeItem[]) { items = next; notify() },
     getItems() { return items },
-    getItem(id: string) { return items.find(item => 'dcb-' + item.id === id) },
     getProps(id: string) { return props.get(id) },
-    add(original: unknown[]) {
-      const native = original.filter(value => !isRecord(value) || !isCustomId(value.id))
+    addBadges(original: unknown[], userId: string) {
+      const native = original.filter(value => !isRecord(value) || typeof value.id !== 'string' || !value.id.startsWith('dcb-'))
       const custom = items.map(item => {
         const id = 'dcb-' + item.id
-        const source = item.kind === 'image' ? item.image : ''
-        props.set(id, { id, userId: '', source: source ? { uri: source } : undefined, label: item.label, icon: item.icon, description: item.description || item.label })
-        return { id, description: item.description || item.label, icon: item.icon || 'dummy', iconSrc: source || undefined }
+        const image = item.image || ''
+        props.set(id, {
+          id,
+          userId,
+          label: item.label,
+          source: image ? { uri: image } : undefined,
+        })
+        return {
+          id,
+          description: item.description || item.label,
+          icon: item.icon || 'custom',
+          iconSrc: image || undefined,
+        }
       })
       return [...native, ...custom]
     },
