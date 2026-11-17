@@ -21,8 +21,9 @@ permissions:
   packages: read
 
 env:
-  POOL_BRANCH: ${{ vars.POOL_BRANCH }}
-  PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+  POOL_BRANCH: gh-pages
+  POOL_CHECKOUT: ${{ runner.temp }}/published
+  PAGES_BASE_URL: https://domm1402.github.io/Plugins
   POOL_REMOTE: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
 
 jobs:
