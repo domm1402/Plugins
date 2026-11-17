@@ -94,36 +94,10 @@ export default plugin<{ jsonStorage: Settings }>({
     )
     cleanup(unsub)
 
-    // Keep the data hook in sync too, so the badge collection/list sees the same items.
-    const patch = (args: any[]) => {
-      const props = args[1]
-      if (isRecord(props) && Array.isArray(props.badges) && typeof props.userId === 'string') {
-        const ownId = props.userId
-        const current = store.getItems()
-        if (current.length) args[1] = { ...props, badges: store.add(props.badges) }
-      } else if (isRecord(props) && isCustomId(props.id)) {
-        const custom = store.getProps(props.id)
-        if (custom) args[1] = { ...props, source: custom.source, label: custom.label }
-      }
-      return args
-    }
   },
   stop({ plugin }) { plugin.requireReload() },
   SettingsComponent,
 })
-
-function beforeSafe(method: 'jsx' | 'jsxs', callback: (args: any[]) => any) {
-  // The dedicated ProfileBadgeRows JSX patch handles row rendering. This hook is
-  // intentionally omitted when the runtime does not expose a patchable method.
-  try {
-    const runtime = requireRuntime()
-    return runtime ? runtime(method, callback) : () => {}
-  } catch { return () => {} }
-}
-
-function requireRuntime(): any {
-  return undefined
-}
 
 function isProfileBadgeElement(node: ReactNode): node is ReactElement<ProfileBadgeProps> {
   if (!isValidElement(node) || typeof node.type !== 'function') return false
