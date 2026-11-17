@@ -110,6 +110,7 @@ export function createStore() {
     snapshot: () => version,
     setItems(next: BadgeItem[]) { items = next; notify() },
     getItems() { return items },
+    getItem(id: string) { return items.find(item => 'dcb-' + item.id === id) },
     getProps(id: string) { return props.get(id) },
     add(original: unknown[]) {
       const native = original.filter(value => !isRecord(value) || !isCustomId(value.id))
