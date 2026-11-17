@@ -1,11 +1,15 @@
-# A plugin is released when the published pool doesn't have `<id>@<version>.zip` for its manifest version.
-# The pool contains all relevant data. Git tags and GitHub releases are created for changelogs only.
-
-name: Release plugins
+name: Release Domms Custom Badges
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'plugins/domms-custom-badges/**'
+      - 'repo.config.json'
+      - 'package.json'
+      - 'bun.lock'
+      - 'build.gradle.kts'
+      - '.github/workflows/release.yml'
   workflow_dispatch:
 
 concurrency:
@@ -20,43 +24,40 @@ env:
   POOL_BRANCH: ${{ vars.POOL_BRANCH }}
   PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
   POOL_REMOTE: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
-  PLAN: ${{ github.workspace }}/releases.json
 
 jobs:
-  release:
+  release-badges:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - uses: oven-sh/setup-bun@v2
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 25
 
-      - run: bun install
+      - name: Install JavaScript dependencies
+        run: bun install
 
-      - name: Check out the published pool
+      - name: Check out published plugin pool
         run: .github/scripts/checkout-pool.sh
 
-      - name: Plan releases
-        id: plan
-        run: .github/scripts/plan-releases.sh
-
-      - name: Build plugins
-        if: steps.plan.outputs.count != '0'
-        run: ./gradlew --no-daemon packageAllPlugins
+      - name: Build only Domms Custom Badges
+        run: ./gradlew --no-daemon packageDommsCustomBadges
         env:
           GITHUB_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN || github.token }}
 
-      - name: Publish to the pool
-        if: steps.plan.outputs.count != '0'
-        run: .github/scripts/publish-pool.sh
-
-      - name: Tag and write changelogs
-        if: steps.plan.outputs.count != '0'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: .github/scripts/tag-releases.sh
+      - name: Publish plugin ZIP and regenerate index.json
+        run: |
+          mkdir -p "$POOL_CHECKOUT/pool"
+          cp "build/dist/domms.custom-badges@1.0.2.zip" "$POOL_CHECKOUT/pool/"
+          bun run generate-index --dist "$POOL_CHECKOUT/pool" --base-url "$(pages_base_url)/pool" --out "$POOL_CHECKOUT/index.json"
+          git -C "$POOL_CHECKOUT" add pool index.json
+          git -C "$POOL_CHECKOUT" config user.name 'github-actions[bot]'
+          git -C "$POOL_CHECKOUT" config user.email 'github-actions[bot]@users.noreply.github.com'
+          if git -C "$POOL_CHECKOUT" diff --cached --quiet; then
+            echo "Published pool already up to date."
+          else
+            git -C "$POOL_CHECKOUT" commit -m "Publish Domms Custom Badges 1.0.2"
+            git -C "$POOL_CHECKOUT" push origin "$POOL_BRANCH"
+          fi
