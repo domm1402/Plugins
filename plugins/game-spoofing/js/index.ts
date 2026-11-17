@@ -1,1 +1,1 @@
-export { default } from './eskimo/index'
+export { default } from './index'
