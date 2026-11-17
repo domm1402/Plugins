@@ -39,8 +39,8 @@
         },
         "1.0.4": {
           "url": "https://domm1402.github.io/Plugins/pool/domms.custom-badges@1.0.4.zip",
-          "sha256": "4e535aa6d9fcbbeb069cc12fd14322c783caeb5f5645a61dbe6a8a4b01a75993",
-          "size": 6352,
+          "sha256": "51c0f8d075970deda043cd80ab54fff1600c98050376a46d8d9c8f76b3505a50",
+          "size": 5810,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
