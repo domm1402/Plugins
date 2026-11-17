@@ -1,7 +1,7 @@
 import Page from '@valenced/components/Page'
 import { Design } from '@valenced/discord/design'
 import { ScrollView, View, Image } from 'react-native'
-import type { ComponentProps } from 'react'
+import { useState, type ComponentProps } from 'react'
 import type { PluginSettingsComponent } from '@valenced/plugins/types'
 import type { BadgeItem } from './badges'
 import { DEFAULT_BADGES } from './badges'
@@ -11,7 +11,7 @@ type Props = ComponentProps<PluginSettingsComponent<{ jsonStorage: Settings }>>
 
 export default function SettingsComponent({ api: { jsonStorage: storage } }: Props) {
   const settings = storage.use() ?? { badges: [], showAll: true }
-  const [label, setLabel] = React.useState('')
+  const [label, setLabel] = useState('')
   const [image, setImage] = React.useState('')
   const [error, setError] = React.useState('')
 
@@ -43,7 +43,7 @@ export default function SettingsComponent({ api: { jsonStorage: storage } }: Pro
             <View key={badge.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, gap: 10 }}>
               <Image source={{ uri: badge.image }} style={{ width: 28, height: 28, borderRadius: 6 }} />
               <View style={{ flex: 1 }}><Design.Text>{badge.label}</Design.Text></View>
-              <Design.Button text="Remove" onPress={() => storage.set({ badges: settings.badges.filter((_, i) => i !== index) })} />
+              <Design.Button text="Remove" onPress={() => storage.set({ badges: (settings.badges ?? []).filter((_, i) => i !== index) })} />
             </View>
           ))}
         </Design.TableRowGroup>
