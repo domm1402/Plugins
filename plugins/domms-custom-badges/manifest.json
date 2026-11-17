@@ -2,9 +2,9 @@
   "format": 1,
   "id": "domms.custom-badges",
   "name": "Domms Custom Badges",
-  "description": "136 cosmetic badge designs, custom image badges, tappable profile details and compact profile badge layout.",
+  "description": "Display selected Discord badge artwork and custom image badges in Valenced profiles using the native badge pipeline. Local display only; does not grant Discord account badges.",
   "author": "Niche Games",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "dependencies": {
     "valenced.api": {
       "version": ">=1 <2"
