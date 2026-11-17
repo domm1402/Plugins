@@ -1,7 +1,7 @@
 {
   "format": 1,
   "name": "Domm's Valenced Plugins",
-  "description": "Valenced plugins including Domms Custom Badges and Game Spoofer.",
+  "description": "Valenced plugins including Domms Custom Badges, a local-only badge customizer for your own profile.",
   "plugins": {
     "domms.custom-badges": {
       "name": "Domms Custom Badges",
@@ -13,8 +13,8 @@
       "versions": {
         "1.0.2": {
           "url": "https://domm1402.github.io/Plugins/pool/domms.custom-badges@1.0.2.zip",
-          "sha256": "830476b5de1b6c1bc44277e528737a9b934e433fb97700c4ff053376b8636ab8",
-          "size": 2660,
+          "sha256": "6a066a2a901470e2eb9bb521854a8e07cf5477c251fba531ee5b55e6c3ee6e7b",
+          "size": 3138,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
@@ -28,7 +28,7 @@
     },
     "domms.game-spoofer": {
       "name": "Game Spoofer",
-      "description": "Choose a game, customise Discord Rich Presence details and publish or clear your activity.",
+      "description": "Select a game, customise its activity details and elapsed timer, and publish or clear Discord Rich Presence.",
       "author": "Niche Games",
       "channels": {
         "latest": "1.0.0"
