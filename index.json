@@ -5,10 +5,10 @@
   "plugins": {
     "domms.custom-badges": {
       "name": "Domms Custom Badges",
-      "description": "Add a large cosmetic badge library, custom image badges and tappable profile badge details, locally on your own profile.",
+      "description": "136 cosmetic badge designs, custom image badges, tappable profile details and compact profile badge layout.",
       "author": "Niche Games",
       "channels": {
-        "latest": "1.0.3"
+        "latest": "1.0.4"
       },
       "versions": {
         "1.0.2": {
@@ -28,6 +28,19 @@
           "url": "https://domm1402.github.io/Plugins/pool/domms.custom-badges@1.0.3.zip",
           "sha256": "0ba8557a33ebdbc53a38ed1a48362b968c931ba3a6035cddbf402f1a191bd550",
           "size": 3948,
+          "dependencies": {
+            "valenced.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": ">=351.1"
+            }
+          }
+        },
+        "1.0.4": {
+          "url": "https://domm1402.github.io/Plugins/pool/domms.custom-badges@1.0.4.zip",
+          "sha256": "4e535aa6d9fcbbeb069cc12fd14322c783caeb5f5645a61dbe6a8a4b01a75993",
+          "size": 6352,
           "dependencies": {
             "valenced.api": {
               "version": ">=1 <2"
