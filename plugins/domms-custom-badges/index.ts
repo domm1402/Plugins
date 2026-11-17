@@ -1,7 +1,9 @@
 import { AlertActionCreators } from '@valenced/discord/actions'
 import { Design } from '@valenced/discord/design'
 import { getModules } from '@valenced/modules/finders'
-import { withProps } from '@valenced/modules/finders/filters'
+import { withName, withProps } from '@valenced/modules/finders/filters'
+import { instead } from '@valenced/patcher'
+import { useSyncExternalStore } from 'react'
 import { insteadJSX } from '@valenced/react/jsx-runtime'
 import { createElement, isValidElement } from 'react'
 import { Image } from 'react-native'
@@ -72,6 +74,18 @@ export default plugin<{ jsonStorage: Settings }>({
     sync()
     cleanup(jsonStorage.subscribe(sync))
 
+    type UseBadges = (user: { userId: string } | null) => unknown[]
+    const listUnsub = getModules(withName<UseBadges>('useBadges'), module => {
+      if (!('default' in module) || typeof module.default !== 'function') return
+      cleanup(instead(module, 'default', function(args, original) {
+        useSyncExternalStore(store.subscribe, store.snapshot)
+        const result = Reflect.apply(original, this, args)
+        const viewedUserId = args[0]?.userId
+        return viewedUserId && Array.isArray(result) ? store.add(result) : result
+      }))
+    }, { returnNamespace: true, max: Infinity })
+    cleanup(listUnsub)
+
     const unsub = getModules(
       withProps<{ ProfileBadgeRows: FC<ProfileBadgeRowsProps> }>('ProfileBadgeRows'),
       ({ ProfileBadgeRows }) => {
@@ -103,11 +117,6 @@ export default plugin<{ jsonStorage: Settings }>({
       }
       return args
     }
-    // Also cover ProfileBadge JSX instances created outside ProfileBadgeRows.
-    cleanup(
-      beforeSafe('jsx', patch),
-      beforeSafe('jsxs', patch),
-    )
   },
   stop({ plugin }) { plugin.requireReload() },
   SettingsComponent,
