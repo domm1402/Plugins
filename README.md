@@ -16,7 +16,7 @@ Add your own image badges to your Discord profile inside Valenced. Add badges us
 Use this repository URL in Valenced's plugin repository manager:
 
 ```
-https://domm1402.github.io/Plugins/
+https://domm1402.github.io/Plugins/index.json
 ```
 
 Browse the repository in Valenced to install available plugins and receive published updates.
