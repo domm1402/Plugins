@@ -101,7 +101,10 @@ function injectCustomBadges(rendered: ReactNode, props: ProfileBadgeRowsProps, s
     if (!template) return
     const BadgeComponent = template.type as FC<ProfileBadgeProps>
     const additions = store.getItems().map(item => createElement(
-      patchRender(BadgeComponent, tree => patchBadge(tree, item)),
+      patchRender(BadgeComponent, (tree, badgeProps) => {
+        const selected = store.getItem(badgeProps.id)
+        return selected ? patchBadge(tree, selected) : tree
+      }),
       {
         ...template.props,
         key: 'dcb-' + item.id,
