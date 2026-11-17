@@ -2,13 +2,11 @@ import { getStore } from '@valenced/discord/flux'
 import { AlertActionCreators } from '@valenced/discord/actions'
 import { Design } from '@valenced/discord/design'
 import { getModules } from '@valenced/modules/finders'
-import { withName, withProps } from '@valenced/modules/finders/filters'
-import { instead } from '@valenced/patcher'
-import { useSyncExternalStore } from 'react'
+import { withProps } from '@valenced/modules/finders/filters'
 import { insteadJSX } from '@valenced/react/jsx-runtime'
 import { createElement, isValidElement } from 'react'
 import { Image } from 'react-native'
-import { createStore, isCustomId, isRecord } from './badges'
+import { createStore } from './badges'
 import SettingsComponent from './settings'
 import type { FC, ReactElement, ReactNode } from 'react'
 import type { BadgeItem } from './badges'
@@ -77,19 +75,6 @@ export default plugin<{ jsonStorage: Settings }>({
     const sync = () => store.setItems([...(jsonStorage.cache?.badges ?? [])])
     sync()
     cleanup(jsonStorage.subscribe(sync))
-
-    type UseBadges = (user: { userId: string } | null) => unknown[]
-    const listUnsub = getModules(withName<UseBadges>('useBadges'), module => {
-      if (!('default' in module) || typeof module.default !== 'function') return
-      cleanup(instead(module, 'default', function(args, original) {
-        useSyncExternalStore(store.subscribe, store.snapshot)
-        const result = Reflect.apply(original, this, args)
-        const viewedUserId = args[0]?.userId
-        const ownUserId = userStore?.getCurrentUser()?.id
-        return viewedUserId && viewedUserId === ownUserId && Array.isArray(result) ? store.add(result) : result
-      }))
-    }, { returnNamespace: true, max: Infinity })
-    cleanup(listUnsub)
 
     const unsub = getModules(
       withProps<{ ProfileBadgeRows: FC<ProfileBadgeRowsProps> }>('ProfileBadgeRows'),
