@@ -49,6 +49,7 @@ jobs:
 
       - name: Publish plugin ZIP and regenerate index.json
         run: |
+          . .github/scripts/lib.sh
           mkdir -p "$POOL_CHECKOUT/pool"
           cp "build/dist/domms.custom-badges@1.0.2.zip" "$POOL_CHECKOUT/pool/"
           bun run generate-index --dist "$POOL_CHECKOUT/pool" --base-url "$(pages_base_url)/pool" --out "$POOL_CHECKOUT/index.json"
