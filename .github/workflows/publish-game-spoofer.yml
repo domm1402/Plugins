@@ -1,0 +1,92 @@
+name: Publish Game Spoofer
+on:
+  push:
+    branches: [main]
+    paths:
+      - "plugins/game-spoofer/**"
+      - ".github/workflows/publish-game-spoofer.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout plugin source
+        uses: actions/checkout@v4
+        with:
+          path: source
+      - name: Checkout Valenced build template
+        uses: actions/checkout@v4
+        with:
+          repository: Valenced/valenced-plugin-template
+          path: builder
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - name: Build plugin bundle
+        working-directory: builder
+        run: |
+          mkdir -p plugins/game-spoofer
+          cp -R ../source/plugins/game-spoofer/. plugins/game-spoofer/
+          rm -rf plugins/game-spoofer/native
+          printf '%s\n' '{"extends":"../../tsconfig.base.json"}' > plugins/game-spoofer/tsconfig.json
+          bun install
+          bun run build game-spoofer
+          mkdir -p ../artifact
+          cp plugins/game-spoofer/manifest.json ../artifact/manifest.json
+          cp plugins/game-spoofer/build/js/index.js ../artifact/index.js
+          cd ../artifact
+          zip -q -r ../game-spoofer.zip .
+          cd ..
+          sha256sum game-spoofer.zip | awk '{print $1}' > game-spoofer.sha256
+          stat -c '%s' game-spoofer.zip > game-spoofer.size
+      - name: Checkout published pool
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: pages
+      - name: Publish ZIP and update repository index
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./source/plugins/game-spoofer/manifest.json').version")
+          ID=$(node -p "require('./source/plugins/game-spoofer/manifest.json').id")
+          mkdir -p "pages/pool"
+          cp game-spoofer.zip "pages/pool/${ID}@${VERSION}.zip"
+          SHA=$(cat game-spoofer.sha256)
+          SIZE=$(cat game-spoofer.size)
+          node - "$ID" "$VERSION" "$SHA" "$SIZE" <<'NODE'
+          const fs = require('fs');
+          const [id, version, sha256, size] = process.argv.slice(2);
+          const file = 'pages/index.json';
+          const index = JSON.parse(fs.readFileSync(file, 'utf8'));
+          index.name = "Domm's Valenced Plugins";
+          index.description = "Valenced plugins including Domms Custom Badges and Game Spoofer.";
+          index.plugins[id] = {
+            name: "Game Spoofer",
+            description: "Choose a game, customise Discord Rich Presence details and publish or clear your activity.",
+            author: "Niche Games",
+            channels: { latest: version },
+            versions: {
+              [version]: {
+                url: `https://domm1402.github.io/Plugins/pool/${id}@${version}.zip`,
+                sha256,
+                size: Number(size),
+                dependencies: {
+                  "valenced.api": { version: ">=1 <2" },
+                  "discord": { version: "*" }
+                }
+              }
+            }
+          };
+          fs.writeFileSync(file, JSON.stringify(index, null, 2) + '\n');
+          NODE
+          cd pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.json "pool/${ID}@${VERSION}.zip"
+          git commit -m "Publish Game Spoofer ${VERSION}" || exit 0
+          git push
