@@ -1,4 +1,3 @@
-import { getStore } from '@valenced/discord/flux'
 import { AlertActionCreators } from '@valenced/discord/actions'
 import { Design } from '@valenced/discord/design'
 import { getModules } from '@valenced/modules/finders'
@@ -11,8 +10,6 @@ import SettingsComponent from './settings'
 import type { FC, ReactElement, ReactNode } from 'react'
 import type { BadgeItem } from './badges'
 
-type Settings = { badges: BadgeItem[]; showAll: boolean }
-type UserStore = { getCurrentUser(): { id: string } | undefined }
 type ProfileBadgeProps = {
   id: string
   userId: string
@@ -27,10 +24,11 @@ type ProfileBadgeRowsProps = {
   themeType: string
   showToastOnPress?: boolean
 }
-type RenderPatch<P, C = void> = (rendered: ReactNode, props: P, context: C) => ReactNode
+type RenderPatch<P> = (rendered: ReactNode, props: P) => ReactNode
 
 const DummyBadgeId = 'domms_custom_badges_dummy'
 const DummyBadges = [{ id: DummyBadgeId }] as unknown as ProfileBadgeRowsProps['badges']
+const patched = new WeakMap<FC<any>, FC<any>>()
 
 function mapElementTree(node: ReactNode, visit: (element: ReactElement<any>) => Record<string, any> | undefined): ReactNode {
   if (Array.isArray(node)) {
@@ -52,22 +50,19 @@ function mapElementTree(node: ReactNode, visit: (element: ReactElement<any>) => 
   return createElement(element.type, { ...element.props, ...patch, ...(nextChildren === children ? {} : { children: nextChildren }) })
 }
 
-function patchRender<P extends object, C = void>(Component: FC<P>, patch: RenderPatch<P, C>, useContext?: () => C): FC<P> {
-  const Wrapped: FC<P> = props => {
-    const context = useContext?.() as C
-    const rendered = Component(props)
-    return rendered instanceof Promise ? rendered.then(node => patch(node, props, context)) as any : patch(rendered, props, context) as any
-  }
+function patchRender<P extends object>(Component: FC<P>, patch: RenderPatch<P>): FC<P> {
+  const cached = patched.get(Component)
+  if (cached) return cached
+  const Wrapped: FC<P> = props => patch(Component(props), props)
+  patched.set(Component, Wrapped)
   return Wrapped
 }
 
-export default plugin<{ jsonStorage: Settings }>({
+export default plugin<{ jsonStorage: { badges: BadgeItem[]; showAll: boolean } }>({
   jsonStorage: { load: true, default: { badges: [], showAll: true } },
   start({ cleanup, jsonStorage, plugin }) {
     if (plugin.startedLate) { plugin.requireReload(); return }
     const store = createStore()
-    let userStore: UserStore | undefined
-    cleanup(getStore<UserStore>('UserStore', value => { userStore = value }))
     const sync = () => store.setItems([...(jsonStorage.cache?.badges ?? [])])
     sync()
     cleanup(jsonStorage.subscribe(sync))
@@ -76,9 +71,7 @@ export default plugin<{ jsonStorage: Settings }>({
       withProps<{ ProfileBadgeRows: FC<ProfileBadgeRowsProps> }>('ProfileBadgeRows'),
       ({ ProfileBadgeRows }) => {
         cleanup(insteadJSX(ProfileBadgeRows, ([type, props, key], jsx) => {
-          const ownId = userStore?.getCurrentUser()?.id
-          const currentBadges = store.getItems()
-          if (!currentBadges.length || typeof type !== 'function' || !ownId || props.userId !== ownId) return jsx(type, props, key)
+          if (!store.getItems().length || typeof type !== 'function') return jsx(type, props, key)
           return jsx(
             patchRender(type, (rendered, rowProps) => injectCustomBadges(rendered, rowProps, store)),
             props.badges?.length ? props : { ...props, badges: DummyBadges },
@@ -89,7 +82,6 @@ export default plugin<{ jsonStorage: Settings }>({
       { max: 1 },
     )
     cleanup(unsub)
-
   },
   stop({ plugin }) { plugin.requireReload() },
   SettingsComponent,
@@ -108,15 +100,14 @@ function injectCustomBadges(rendered: ReactNode, props: ProfileBadgeRowsProps, s
     const template = children.find(isProfileBadgeElement)
     if (!template) return
     const BadgeComponent = template.type as FC<ProfileBadgeProps>
-    const badges = store.getItems()
-    const additions = badges.map(item => createElement(
-      patchRender(BadgeComponent, (tree, badgeProps) => patchBadge(tree, badgeProps, item)),
+    const additions = store.getItems().map(item => createElement(
+      patchRender(BadgeComponent, tree => patchBadge(tree, item)),
       {
         ...template.props,
         key: 'dcb-' + item.id,
         id: 'dcb-' + item.id,
         label: item.label,
-        source: item.kind === 'image' ? { uri: item.image } : template.props.source,
+        source: { uri: item.image },
       },
     ))
     return {
@@ -124,16 +115,19 @@ function injectCustomBadges(rendered: ReactNode, props: ProfileBadgeRowsProps, s
         ...children.filter(child => !isProfileBadgeElement(child) || child.props.id !== DummyBadgeId),
         ...additions,
       ],
-      style: [element.props.style, { flexWrap: 'wrap', gap: 0, rowGap: 0, columnGap: 0, justifyContent: 'flex-start' }],
+      style: [
+        element.props.style,
+        { flexDirection: 'row', flexWrap: 'wrap', gap: 0, rowGap: 0, columnGap: 0, justifyContent: 'flex-start', alignItems: 'center' },
+      ],
     }
   })
 }
 
-function patchBadge(rendered: ReactNode, props: ProfileBadgeProps, badge: BadgeItem): ReactNode {
-  let clickPatched = false
+function patchBadge(rendered: ReactNode, badge: BadgeItem): ReactNode {
+  let pressablePatched = false
   return mapElementTree(rendered, element => {
-    if (!clickPatched && ('onPress' in element.props || element.props.accessibilityRole === 'button')) {
-      clickPatched = true
+    if (!pressablePatched && ('onPress' in element.props || element.props.accessibilityRole === 'button')) {
+      pressablePatched = true
       return { onPress: () => showBadge(badge) }
     }
     return undefined
@@ -141,18 +135,19 @@ function patchBadge(rendered: ReactNode, props: ProfileBadgeProps, badge: BadgeI
 }
 
 const { AlertActionButton, AlertModal, Stack, Text } = Design
-function showBadge(badge: BadgeItem) {
-  const source = badge.kind === 'image' ? { uri: badge.image } : undefined
-  const title = createElement(
-    Stack,
-    { style: { alignItems: 'center' } },
-    source ? createElement(Image, { source, style: { width: 96, height: 96, resizeMode: 'contain' } }) : null,
-    createElement(Text, { variant: 'heading-lg/bold', color: 'mobile-text-heading-primary' }, badge.label),
+function showBadge(badge: BadgeItem): void {
+  const source = { uri: badge.image }
+  AlertActionCreators.openAlert(
+    'domms-custom-badge-' + badge.id,
+    createElement(AlertModal, {
+      title: createElement(
+        Stack,
+        { style: { alignItems: 'center' } },
+        createElement(Image, { source, style: { width: 96, height: 96, resizeMode: 'contain' } }),
+        createElement(Text, { variant: 'heading-lg/bold', color: 'mobile-text-heading-primary' }, badge.label),
+      ),
+      content: badge.description || 'Cosmetic badge stored locally on this device.',
+      actions: createElement(AlertActionButton, { text: 'OK' }),
+    }),
   )
-  const modal = createElement(AlertModal, {
-    title,
-    content: badge.description || 'Cosmetic badge stored locally on this device.',
-    actions: createElement(AlertActionButton, { text: 'OK' }),
-  })
-  AlertActionCreators.openAlert('domms-custom-badge-' + badge.id, modal)
 }
