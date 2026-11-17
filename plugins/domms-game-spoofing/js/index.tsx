@@ -24,7 +24,7 @@ const templates: Template[] = [
   { name: 'The Witcher 4', details: 'The Path begins again', state: 'On the Path', imageKey: 'witcher4', category: 'Upcoming' },
   { name: 'Marvel’s Wolverine', details: 'The hunt is on', state: 'Story Mode', imageKey: 'wolverine', category: 'Upcoming' },
   { name: 'Fable', details: 'A new legend begins', state: 'Exploring Albion', imageKey: 'fable', category: 'Upcoming' },
-  { name: 'Light No Fire', details: 'Discovering a vast world', state: 'Exploring', imageKey: 'lightnofire', category: 'Upcoming' },,
+  { name: 'Light No Fire', details: 'Discovering a vast world', state: 'Exploring', imageKey: 'lightnofire', category: 'Upcoming' },
   { name: 'Half-Life: Alyx', details: 'Entering City 17', state: 'VR Campaign', imageKey: 'halflifealyx', category: 'VR / Legendary' },
   { name: 'Half-Life 3', details: 'The wait is finally over', state: 'Chapter One', imageKey: 'halflife3', category: 'Legendary / Fictional' },
   { name: 'Portal 2', details: 'Solving test chambers', state: 'Co-op testing', imageKey: 'portal2', category: 'Puzzle' },
