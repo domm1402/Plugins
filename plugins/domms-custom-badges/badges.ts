@@ -899,10 +899,26 @@ const EXTRA_EMOJI: Record<string, string> = {
   "party-member": "1f46b"
 }
 
+const OFFICIAL_BADGE_ASSETS: Record<string, string> = {
+  staff: '48d5bdcffe9e7848067c2e187f1ef951',
+  partner: '34306011e46e87f8ef25f3415d3b99ca',
+  hypesquad: 'bf01d1073931f921909045f3a39fd264',
+  'bug-hunter': '2717692c7dca7289b35297368a940dd0',
+  'bug-hunter-gold': '848f79194d4be5ff5f81505cbd0ce1e6',
+  'early-supporter': '7060786766c9c840eb3019e725d2b358',
+  'active-developer': '6bdc42827a38498929a4920da12695d9',
+  'verified-developer': '6df5892e0f35b051f8b61eace34f4967',
+  'certified-moderator': 'fee1624003e2fee35cb398e125dc479b',
+  premium: '2ba85e8026a8614b640c2837bcdfe21b',
+  'booster-1': 'ec8c7e1b1ecb2c6a9a7b3b4a7f5f6f4d',
+}
+
 export const DEFAULT_BADGES: BadgeItem[] = [...PRESET_BADGES, ...EXTRA_BADGES].map(badge => ({
   ...badge,
   kind: 'image',
-  image: `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${PRESET_EMOJI[badge.id] || EXTRA_EMOJI[badge.id] || '1f3c6'}.png`,
+  image: OFFICIAL_BADGE_ASSETS[badge.id]
+    ? `https://cdn.discordapp.com/badge-icons/${OFFICIAL_BADGE_ASSETS[badge.id]}.png`
+    : `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${PRESET_EMOJI[badge.id] || EXTRA_EMOJI[badge.id] || '1f3c6'}.png`,
 }))
 
 export function isRecord(value: unknown): value is Record<string, any> {
