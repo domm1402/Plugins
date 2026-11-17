@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "id": "domms.game-spoofer",
+  "name": "Game Spoofer",
+  "description": "Select a game, customise its activity details and elapsed timer, and publish or clear Discord Rich Presence.",
+  "author": "Niche Games",
+  "version": "1.0.0",
+  "dependencies": {
+    "valenced.api": {
+      "version": ">=1 <2"
+    },
+    "discord": {
+      "version": "*"
+    }
+  },
+  "dist": {
+    "script": "index.js"
+  }
+}
