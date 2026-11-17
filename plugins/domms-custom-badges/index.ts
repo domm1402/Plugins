@@ -143,17 +143,16 @@ function patchBadge(rendered: ReactNode, props: ProfileBadgeProps, badge: BadgeI
 const { AlertActionButton, AlertModal, Stack, Text } = Design
 function showBadge(badge: BadgeItem) {
   const source = badge.kind === 'image' ? { uri: badge.image } : undefined
-  AlertActionCreators.openAlert(
-    'domms-custom-badge-' + badge.id,
-    <AlertModal
-      title={
-        <Stack style={{ alignItems: 'center' }}>
-          {source ? <Image source={source} style={{ width: 96, height: 96, resizeMode: 'contain' }} /> : null}
-          <Text variant="heading-lg/bold" color="mobile-text-heading-primary">{badge.label}</Text>
-        </Stack>
-      }
-      content={badge.description || 'Cosmetic badge stored locally on this device.'}
-      actions={<AlertActionButton text="OK" />}
-    />,
+  const title = createElement(
+    Stack,
+    { style: { alignItems: 'center' } },
+    source ? createElement(Image, { source, style: { width: 96, height: 96, resizeMode: 'contain' } }) : null,
+    createElement(Text, { variant: 'heading-lg/bold', color: 'mobile-text-heading-primary' }, badge.label),
   )
+  const modal = createElement(AlertModal, {
+    title,
+    content: badge.description || 'Cosmetic badge stored locally on this device.',
+    actions: createElement(AlertActionButton, { text: 'OK' }),
+  })
+  AlertActionCreators.openAlert('domms-custom-badge-' + badge.id, modal)
 }
