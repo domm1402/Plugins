@@ -52,7 +52,10 @@ jobs:
         run: |
           . .github/scripts/lib.sh
           mkdir -p "$POOL_CHECKOUT/pool"
-          cp "build/dist/domms.custom-badges@1.0.2.zip" "$POOL_CHECKOUT/pool/"
+          VERSION="$(node -p "require('./plugins/domms-custom-badges/manifest.json').version")"
+          ZIP="build/dist/domms.custom-badges@${VERSION}.zip"
+          test -f "$ZIP"
+          cp "$ZIP" "$POOL_CHECKOUT/pool/"
           bun run generate-index --dist "$POOL_CHECKOUT/pool" --base-url "$(pages_base_url)/pool" --out "$POOL_CHECKOUT/index.json"
           git -C "$POOL_CHECKOUT" add pool index.json
           git -C "$POOL_CHECKOUT" config user.name 'github-actions[bot]'
@@ -60,6 +63,6 @@ jobs:
           if git -C "$POOL_CHECKOUT" diff --cached --quiet; then
             echo "Published pool already up to date."
           else
-            git -C "$POOL_CHECKOUT" commit -m "Publish Domms Custom Badges 1.0.2"
+            git -C "$POOL_CHECKOUT" commit -m "Publish Domms Custom Badges ${VERSION}"
             git -C "$POOL_CHECKOUT" push origin "$POOL_BRANCH"
           fi
