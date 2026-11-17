@@ -2,9 +2,9 @@
   "format": 1,
   "id": "domms.custom-badges",
   "name": "Domms Custom Badges",
-  "description": "Add a large cosmetic badge library, custom image badges and tappable profile badge details, locally on your own profile.",
+  "description": "136 cosmetic badge designs, custom image badges, tappable profile details and compact profile badge layout.",
   "author": "Niche Games",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "dependencies": {
     "valenced.api": {
       "version": ">=1 <2"
