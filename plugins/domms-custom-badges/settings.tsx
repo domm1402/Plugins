@@ -43,7 +43,7 @@ export default function SettingsComponent({ api: { jsonStorage: storage } }: Pro
           <Design.Text>{badges.length} badges selected. Tap a badge in your profile to open its details. These are local cosmetic badges and do not grant genuine Discord entitlements.</Design.Text>
           {badges.map((badge, index) => (
             <View key={badge.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: 10 }}>
-              {badge.kind === 'image' ? <Image source={{ uri: badge.image }} style={{ width: 30, height: 30, borderRadius: 6 }} /> : null}
+              <Image source={{ uri: badge.image }} style={{ width: 32, height: 32, borderRadius: 7 }} />
               <View style={{ flex: 1 }}><Design.Text>{badge.label}</Design.Text></View>
               <Design.Button text="Remove" onPress={() => storage.set({ badges: badges.filter((_, i) => i !== index) })} />
             </View>
@@ -52,11 +52,12 @@ export default function SettingsComponent({ api: { jsonStorage: storage } }: Pro
         </Design.TableRowGroup>
 
         <Design.TableRowGroup title="Badge library">
-          <Design.Text>Choose from {DEFAULT_BADGES.length} built-in cosmetic badge designs. Tap Add to put one in your profile collection. Tap Added to remove it.</Design.Text>
+          <Design.Text>{DEFAULT_BADGES.length} badge designs available. Add as many as you want. Added badges appear in your profile badge row; tap one there to open its details.</Design.Text>
           {DEFAULT_BADGES.map(badge => {
             const selected = badges.some(item => item.id === badge.id)
             return (
               <View key={badge.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 5, gap: 8 }}>
+                <Image source={{ uri: badge.image }} style={{ width: 30, height: 30, borderRadius: 6 }} />
                 <View style={{ flex: 1 }}><Design.Text>{badge.label}</Design.Text></View>
                 <Design.Button text={selected ? 'Added' : 'Add'} onPress={() => togglePreset(badge)} />
               </View>
@@ -72,9 +73,6 @@ export default function SettingsComponent({ api: { jsonStorage: storage } }: Pro
           <Design.Button text="Add image badge" onPress={addImage} />
         </Design.TableRowGroup>
 
-        <Design.TableRowGroup title="Display">
-          <Design.TableSwitchRow label="Show all profile badges" value={settings.showAll ?? true} onValueChange={showAll => storage.set({ showAll })} />
-        </Design.TableRowGroup>
       </Page>
     </ScrollView>
   )
