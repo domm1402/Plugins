@@ -4,10 +4,10 @@ A collection of plugins for the **Valenced Android Discord client**, maintained 
 
 ## Available plugins
 
-### Game Spoofing
-Port of the Game Spoofing plugin from Valenced Ultimate. Includes the game catalogue, custom game entries, editable Rich Presence details, elapsed-session timer controls, and the native Discord Social SDK bridge source.
+### Game Spoofer
+Port of the Game Spoofer plugin from Valenced Ultimate. Includes the game catalogue, custom game entries, editable Rich Presence details, elapsed-session timer controls, and the native Discord Social SDK bridge source.
 
-[Open Game Spoofing](https://github.com/domm1402/Plugins/tree/main/plugins/domms-game-spoofing)
+[Open Game Spoofer](https://github.com/domm1402/Plugins/tree/main/plugins/game-spoofer)
 
 ### Domms Custom Badges
 Add your own image badges to your Discord profile inside Valenced. Add badges using direct HTTP or HTTPS image URLs, choose from built-in Discord-style badge presets, preview and remove custom badges, and toggle whether all profile badges are shown.
