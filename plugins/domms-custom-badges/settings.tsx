@@ -14,8 +14,9 @@ export default function SettingsComponent({ api: { jsonStorage: storage } }: Pro
   const [label, setLabel] = useState('')
   const [image, setImage] = useState('')
   const [error, setError] = useState('')
+  const badges = settings.badges ?? []
 
-  const add = () => {
+  const addImage = () => {
     const name = label.trim()
     const uri = image.trim()
     if (!name) { setError('Enter a badge name.'); return }
@@ -24,38 +25,53 @@ export default function SettingsComponent({ api: { jsonStorage: storage } }: Pro
       return
     }
     const id = 'image-' + Date.now().toString(36)
-    storage.set({ badges: [...(settings.badges ?? []), { id, label: name, image: uri, kind: 'image' }] })
+    storage.set({ badges: [...badges, { id, label: name, image: uri, kind: 'image', description: name }] })
     setLabel('')
     setImage('')
     setError('')
   }
 
+  const togglePreset = (badge: BadgeItem) => {
+    const exists = badges.some(item => item.id === badge.id)
+    storage.set({ badges: exists ? badges.filter(item => item.id !== badge.id) : [...badges, badge] })
+  }
+
   return (
-    <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 28 }}>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 32 }}>
       <Page>
-        <Design.TableRowGroup title="Your private badges">
-          <Design.Text>These badges are stored only on this device and appear only on your own profile in your Valenced app. Other Discord users cannot see them. Paste a direct image URL. The URL does not need a .png, .jpg or other file extension, as long as it returns an image.</Design.Text>
+        <Design.TableRowGroup title="Your badge collection">
+          <Design.Text>{badges.length} badges selected. Tap a badge in your profile to open its details. These are local cosmetic badges and do not grant genuine Discord entitlements.</Design.Text>
+          {badges.map((badge, index) => (
+            <View key={badge.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: 10 }}>
+              {badge.kind === 'image' ? <Image source={{ uri: badge.image }} style={{ width: 30, height: 30, borderRadius: 6 }} /> : null}
+              <View style={{ flex: 1 }}><Design.Text>{badge.label}</Design.Text></View>
+              <Design.Button text="Remove" onPress={() => storage.set({ badges: badges.filter((_, i) => i !== index) })} />
+            </View>
+          ))}
+          {badges.length === 0 ? <Design.Text>No badges added yet. Choose presets below or add your own image.</Design.Text> : null}
+        </Design.TableRowGroup>
+
+        <Design.TableRowGroup title="Badge library">
+          <Design.Text>Choose from {DEFAULT_BADGES.length} built-in cosmetic badge designs. Tap Add to put one in your profile collection. Tap Added to remove it.</Design.Text>
+          {DEFAULT_BADGES.map(badge => {
+            const selected = badges.some(item => item.id === badge.id)
+            return (
+              <View key={badge.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 5, gap: 8 }}>
+                <View style={{ flex: 1 }}><Design.Text>{badge.label}</Design.Text></View>
+                <Design.Button text={selected ? 'Added' : 'Add'} onPress={() => togglePreset(badge)} />
+              </View>
+            )
+          })}
+        </Design.TableRowGroup>
+
+        <Design.TableRowGroup title="Create an image badge">
+          <Design.Text>Use any direct HTTP or HTTPS image URL. The URL does not need a .png or .jpg extension, but the server must return an image.</Design.Text>
           <Design.TextInput label="Badge name" placeholder="My custom badge" value={label} onChange={setLabel} />
           <Design.TextInput label="Image URL" placeholder="https://example.com/image" value={image} onChange={setImage} />
           {error ? <Design.Text>{error}</Design.Text> : null}
-          <Design.Button text="Add image badge" onPress={add} />
-          {(settings.badges ?? []).map((badge, index) => (
-            <View key={badge.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, gap: 10 }}>
-              {badge.kind === 'image' ? <Image source={{ uri: badge.image }} style={{ width: 28, height: 28, borderRadius: 6 }} /> : null}
-              <View style={{ flex: 1 }}><Design.Text>{badge.label}</Design.Text></View>
-              <Design.Button text="Remove" onPress={() => storage.set({ badges: (settings.badges ?? []).filter((_, i) => i !== index) })} />
-            </View>
-          ))}
+          <Design.Button text="Add image badge" onPress={addImage} />
         </Design.TableRowGroup>
-        <Design.TableRowGroup title="Discord-style presets">
-          <Design.Text>Cosmetic presets only. They do not grant genuine Discord badge entitlements and remain visible only to you.</Design.Text>
-          {DEFAULT_BADGES.map(badge => (
-            <Design.Button key={badge.id} text={(settings.badges ?? []).some(item => item.id === badge.id) ? badge.label + ' added' : 'Add ' + badge.label} onPress={() => {
-              if ((settings.badges ?? []).some(item => item.id === badge.id)) return
-              storage.set({ badges: [...(settings.badges ?? []), badge] })
-            }} />
-          ))}
-        </Design.TableRowGroup>
+
         <Design.TableRowGroup title="Display">
           <Design.TableSwitchRow label="Show all profile badges" value={settings.showAll ?? true} onValueChange={showAll => storage.set({ showAll })} />
         </Design.TableRowGroup>
