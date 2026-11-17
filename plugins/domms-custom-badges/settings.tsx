@@ -33,22 +33,22 @@ export default function SettingsComponent({ api: { jsonStorage: storage } }: Pro
   return (
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 28 }}>
       <Page>
-        <Design.TableRowGroup title="Your custom badges">
-          <Design.Text>Badges are saved on this device. Paste a direct image URL. The URL does not need a .png, .jpg or other file extension. The server must return an image that the phone can load.</Design.Text>
+        <Design.TableRowGroup title="Your private badges">
+          <Design.Text>These badges are stored only on this device and appear only on your own profile in your Valenced app. Other Discord users cannot see them. Paste a direct image URL. The URL does not need a .png, .jpg or other file extension, as long as it returns an image.</Design.Text>
           <Design.TextInput label="Badge name" placeholder="My custom badge" value={label} onChange={setLabel} />
           <Design.TextInput label="Image URL" placeholder="https://example.com/image" value={image} onChange={setImage} />
           {error ? <Design.Text>{error}</Design.Text> : null}
           <Design.Button text="Add image badge" onPress={add} />
           {(settings.badges ?? []).map((badge, index) => (
             <View key={badge.id} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, gap: 10 }}>
-              <Image source={{ uri: badge.image }} style={{ width: 28, height: 28, borderRadius: 6 }} />
+              {badge.kind === 'image' ? <Image source={{ uri: badge.image }} style={{ width: 28, height: 28, borderRadius: 6 }} /> : null}
               <View style={{ flex: 1 }}><Design.Text>{badge.label}</Design.Text></View>
               <Design.Button text="Remove" onPress={() => storage.set({ badges: (settings.badges ?? []).filter((_, i) => i !== index) })} />
             </View>
           ))}
         </Design.TableRowGroup>
         <Design.TableRowGroup title="Discord-style presets">
-          <Design.Text>These are cosmetic profile badges only. They do not grant genuine Discord badge entitlements.</Design.Text>
+          <Design.Text>Cosmetic presets only. They do not grant genuine Discord badge entitlements and remain visible only to you.</Design.Text>
           {DEFAULT_BADGES.map(badge => (
             <Design.Button key={badge.id} text={(settings.badges ?? []).some(item => item.id === badge.id) ? badge.label + ' added' : 'Add ' + badge.label} onPress={() => {
               if ((settings.badges ?? []).some(item => item.id === badge.id)) return
